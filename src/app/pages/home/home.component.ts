@@ -142,13 +142,33 @@ export class HomeComponent implements OnInit {
 
   generateNextTeam() {
     if (this.remainingNames.length < 2) return;
-
-    const team = [this.remainingNames.pop()!, this.remainingNames.pop()!];
+  
+    // Seleccionar dos nombres aleatorios de remainingNames
+    const randomIndex1 = Math.floor(Math.random() * this.remainingNames.length);
+    const name1 = this.remainingNames[randomIndex1];
+  
+    // Eliminar el primer nombre seleccionado de remainingNames
+    this.remainingNames.splice(randomIndex1, 1);
+  
+    // Seleccionar el segundo nombre aleatorio
+    const randomIndex2 = Math.floor(Math.random() * this.remainingNames.length);
+    const name2 = this.remainingNames[randomIndex2];
+  
+    // Eliminar el segundo nombre seleccionado de remainingNames
+    this.remainingNames.splice(randomIndex2, 1);
+  
+    // Crear el nuevo equipo
+    const team = [name1, name2];
     this.teams.push(team);
+  
+    // Marcar los nombres como usados
     team.forEach(name => this.usedNames.add(name));
-
+  
+    // Actualizar el índice del equipo actual
     this.currentTeamIndex = this.teams.length - 1;
     this.showTeam = true;
+  
+    // Mostrar el equipo con animación
     this.showTeamWithAnimation();
   }
 
