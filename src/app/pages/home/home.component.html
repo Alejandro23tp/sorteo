@@ -1,9 +1,16 @@
 <div class="min-h-screen bg-cover bg-center flex flex-col md:flex-row items-center justify-center p-6" 
      style="background-image: url('assets/cesped1.jpg');">
 
-  <!-- Lista de Participantes -->
-  <div class="w-full md:w-1/4 bg-white/40 p-6 rounded-xl shadow-lg backdrop-blur-lg">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Lista de Participantes</h2>
+<!-- Lista de Participantes -->
+<div class="w-full md:w-1/4 bg-white/40 p-4 rounded-xl shadow-lg backdrop-blur-lg">
+  <h2 class="text-2xl font-bold mb-2 text-gray-800 text-center">Lista de Participantes</h2>
+
+  <!-- Total de Jugadores -->
+  <div class="text-center mb-2">
+    <span class="text-sm font-medium text-gray-700">Total de Jugadores: {{ names.length }}</span>
+  </div>
+
+
 
     <!-- Input para archivo -->
     <div class="mb-6">
