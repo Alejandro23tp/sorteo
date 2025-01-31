@@ -1,0 +1,159 @@
+<div class="min-h-screen bg-cover bg-center flex flex-col md:flex-row items-center justify-center p-6" 
+     style="background-image: url('assets/cesped1.jpg');">
+
+  <!-- Lista de Participantes -->
+  <div class="w-full md:w-1/4 bg-white/40 p-6 rounded-xl shadow-lg backdrop-blur-lg">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Lista de Participantes</h2>
+
+    <!-- Input para archivo -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Cargar archivo Excel</label>
+      <div class="mt-1 flex items-center">
+        <input type="file" (change)="onFileChange($event)" accept=".xlsx" class="sr-only" id="fileInput">
+        <label for="fileInput" class="w-full bg-white py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer flex items-center justify-center transition-all">
+          <svg class="h-5 w-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" />
+          </svg>
+          Seleccionar archivo
+        </label>
+      </div>
+    </div>
+
+    <!-- Lista de participantes con resaltado de nombres usados -->
+    <div class="overflow-y-auto max-h-64 pr-2">
+      <ul>
+        <li *ngFor="let name of names" 
+            class="py-3 px-4 mb-2 rounded-lg shadow-md hover:shadow-lg transition"
+            [ngClass]="{'bg-red-200': usedNames.has(name), 'bg-white/80': !usedNames.has(name)}">
+          <span class="text-gray-800 font-medium">{{ name }}</span>
+          <button (click)="removeName(name)" class="ml-2 text-red-600 hover:text-red-800">✖</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Input para agregar nombres manualmente -->
+    <div class="flex items-center mt-4">
+      <input [(ngModel)]="newName" placeholder="Agregar nombre" class="border p-2 rounded-lg w-full">
+      <button (click)="addName()" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Agregar</button>
+    </div>
+
+    <!-- Botón Desordenar -->
+    <button (click)="shuffleNames()" 
+            class="mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all">
+      Desordenar Nombres
+    </button>
+
+    <!-- Botón Descargar -->
+    <button (click)="downloadCSV()" 
+            class="mt-6 w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all">
+      Descargar
+    </button>
+  </div>
+
+  <!-- Sección de Equipos -->
+  <div class="w-full md:w-3/4 bg-white/40 p-8 rounded-xl shadow-lg backdrop-blur-lg mt-6 md:mt-0 md:ml-6">
+    <h2 class="text-3xl font-bold mb-8 text-gray-800 text-center">Equipos</h2>
+
+    <!-- Contenedor principal de equipos -->
+    <div class="min-h-[400px]">
+      <!-- Estado de carga -->
+      <div *ngIf="showSuspense" 
+           class="h-full flex flex-col items-center justify-center space-y-4">
+        <div class="relative w-16 h-16">
+          <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full"></div>
+          <div class="absolute top-0 left-0 w-full h-full border-t-4 border-blue-600 rounded-full animate-spin"></div>
+        </div>
+        <p class="text-lg text-gray-600 font-medium animate-pulse">
+          Organizando equipos...
+        </p>
+      </div>
+
+      <!-- Visualización de equipos -->
+      <div *ngIf="teams.length > 0 && !showSuspense" 
+           class="flex flex-col items-center">
+        <!-- Indicador de progreso -->
+        <div class="w-full max-w-md mb-6">
+          <div class="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Equipo {{currentTeamIndex + 1}} de {{totalTeams}}</span>
+            <span>{{((currentTeamIndex + 1) / totalTeams * 100).toFixed(0)}}%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                 [style.width]="((currentTeamIndex + 1) / totalTeams * 100) + '%'">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta del equipo actual -->
+        <div class="w-full max-w-2xl p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl 
+                    transform transition-all duration-500 hover:shadow-2xl">
+          <div class="text-2xl font-bold text-gray-700 mb-6 text-center">
+            Equipo {{currentTeamIndex + 1}}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Primer integrante -->
+            <div class="flex flex-col items-center p-4 bg-blue-50 rounded-xl">
+              <span class="text-sm text-blue-600 font-medium mb-2">Integrante 1</span>
+              <span class="text-2xl md:text-3xl font-bold text-blue-700 text-center">
+                {{teams[currentTeamIndex][0]}}
+              </span>
+            </div>
+
+            <!-- Segundo integrante -->
+            <div class="flex flex-col items-center p-4 bg-purple-50 rounded-xl">
+              <span class="text-sm text-purple-600 font-medium mb-2">Integrante 2</span>
+              <span class="text-2xl md:text-3xl font-bold text-purple-700 text-center">
+                {{teams[currentTeamIndex][1]}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje cuando no hay equipos -->
+      <div *ngIf="teams.length === 0 && !showSuspense" 
+           class="h-full flex flex-col items-center justify-center">
+        <div class="text-gray-500 text-center space-y-4">
+          <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <p class="text-xl font-medium">No hay equipos generados</p>
+          <p class="text-sm">Carga la lista de participantes y genera los equipos para comenzar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="mt-8 flex flex-col items-center space-y-4">
+      <!-- Botón "Generar Equipos" / "Siguiente Equipo" -->
+      <button (click)="generateOrNextTeam()"
+              class="w-full md:w-3/4 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          {{ currentTeamIndex === -1 ? 'Generar Equipos' : 'Siguiente Equipo' }}
+        </span>
+      </button>
+
+      <!-- Botón "Re-generar Equipo Actual" -->
+      <button *ngIf="teams.length > 0" 
+              (click)="regenerateCurrentTeam()"
+              class="w-full md:w-3/4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white 
+                     py-3 px-6 rounded-lg hover:from-yellow-600 hover:to-orange-600 
+                     transition-all transform hover:scale-105 focus:outline-none focus:ring-2 
+                     focus:ring-yellow-500 focus:ring-opacity-50">
+        <span class="flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Re-generar Equipo Actual
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
